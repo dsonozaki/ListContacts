@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ListContacts</string>
+    <string name="error_while_loading_contacts">Error while loading contacts: %1$s</string>
+    <string name="reload">Reload</string>
+    <string name="phone_unknown">Unknown phone</string>
+    <string name="contact_photo_description">Contact photo</string>
+    <string name="contacts_permission_was_denied">"You denied contacts permission. Please, turn it on manually in the settings. "</string>
+    <string name="open_settings">Open settings</string>
+    <string name="call_permission_was_denied">Permission for making calls was denied.</string>
+    <string name="call_permission_was_denied_long">Please enable permission manually in the settings</string>
+    <string name="cancel">Cancel</string>
+</resources>
