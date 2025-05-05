@@ -1,45 +1,52 @@
 package com.sonozaki.listcontacts.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import android.content.Intent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.sonozaki.listcontacts.R
 import com.sonozaki.listcontacts.domain.entities.Contact
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ContactsComponent(
     sortedContacts: Map<Char, List<Contact>>,
-    handleCall: (Contact) -> Unit
+    permissions: MultiplePermissionsState
 ) {
     LazyColumn {
         sortedContacts.forEach { (letter, contacts) ->
+            //header with first alphabet letter
             stickyHeader {
-                Box(
+                Column(
                     Modifier
                         .fillMaxWidth()
-                        .background(Color.LightGray)
-                        .padding(8.dp)
+                        .padding(dimensionResource(R.dimen.normal_padding))
                 ) {
                     Text(text = letter.toString(), fontWeight = FontWeight.Bold)
+                    HorizontalDivider()
                 }
             }
 
             items(contacts, { it.contactUri }) { contact ->
-                ContactItem(contact = contact) {
-                    handleCall(contact)
+                ContactItem(contact = contact) { context ->
+                    //make a call if all permissions were granted and phone number exists
+                    if (permissions.allPermissionsGranted && contact.phone != null) {
+                        val intent = Intent(Intent.ACTION_CALL).apply {
+                            data = "tel:${contact.phone}".toUri()
+                        }
+                        context.startActivity(intent)
+                    }
                 }
             }
         }

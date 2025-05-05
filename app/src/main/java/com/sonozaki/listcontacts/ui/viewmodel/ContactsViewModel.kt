@@ -1,11 +1,7 @@
 package com.sonozaki.listcontacts.ui.viewmodel
 
-import android.Manifest.permission.CALL_PHONE
-import android.Manifest.permission.READ_CONTACTS
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sonozaki.listcontacts.STOP_TIMEOUT_MILLIS
 import com.sonozaki.listcontacts.domain.entities.Contact
 import com.sonozaki.listcontacts.domain.entities.DataResult
 import com.sonozaki.listcontacts.domain.usecases.GetContactsUseCase
@@ -14,12 +10,10 @@ import com.sonozaki.listcontacts.domain.usecases.SetPermissionAskedUseCase
 import com.sonozaki.listcontacts.domain.usecases.WasPermissionAskedUseCase
 import com.sonozaki.listcontacts.ui.state.ContactsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +24,7 @@ class ContactsViewModel @Inject constructor(
     private val reloadContactsUseCase: ReloadContactsUseCase,
     private val contactsUiStateFlow: MutableSharedFlow<ContactsUiState>,
     private val setPermissionAskedUseCase: SetPermissionAskedUseCase,
-    private val wasPermissionAskedUseCase: WasPermissionAskedUseCase,
+    private val wasPermissionAskedUseCase: WasPermissionAskedUseCase
 ) : ViewModel() {
 
 
@@ -41,12 +35,19 @@ class ContactsViewModel @Inject constructor(
         }
     }, contactsUiStateFlow).stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+        SharingStarted.Eagerly,
         ContactsUiState.Loading
     )
 
+
     suspend fun wasPermissionAsked(permission: String): Boolean {
         return wasPermissionAskedUseCase(permission)
+    }
+
+    fun setPermissionAsked(permission: String) {
+        viewModelScope.launch {
+            setPermissionAskedUseCase(permission)
+        }
     }
 
     fun reloadContacts() {

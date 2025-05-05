@@ -15,13 +15,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
 import com.sonozaki.listcontacts.R
 import com.sonozaki.listcontacts.ui.utils.launchAppsSettings
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionDeniedComponent() {
+fun PermissionDeniedComponent(reloadContacts: () -> Unit, permissions: MultiplePermissionsState) {
     val context = LocalContext.current
-    Column(modifier = Modifier.fillMaxSize().padding(dimensionResource(R.dimen.big_padding), 0.dp),
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(dimensionResource(R.dimen.big_padding), 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -34,6 +39,14 @@ fun PermissionDeniedComponent() {
             launchAppsSettings(context)
         }) {
             Text(text = stringResource(R.string.open_settings))
+        }
+        Button(onClick = {
+            //reload contacts if all permissions were granted
+            if (permissions.allPermissionsGranted) {
+                reloadContacts()
+            }
+        }) {
+            Text(text = stringResource(R.string.reload))
         }
     }
 }
